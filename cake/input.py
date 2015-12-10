@@ -85,6 +85,7 @@ class EventHandler():
 
     def quit(self):
         """quit pygame and terminate program"""
+        print("Quitting...")
         pygame.quit()
         exit(0)
 
