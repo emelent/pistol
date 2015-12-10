@@ -61,7 +61,7 @@ class SSprite(Sprite):
 
     ##############################################################
 
-    def update(self, dt, surf):
+    def update(self, dt):
         _current = self._current_strip
         if _current != 'default' and \
                 self._strips[_current].is_done():
@@ -72,7 +72,6 @@ class SSprite(Sprite):
                 self.set_strip('default')
 
         self.image = self._strips[_current].next(dt)
-        surf.blit(self.image, self.rect)
 
     def set_strip(self, name):
         """set current animation strip"""

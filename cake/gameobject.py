@@ -102,13 +102,12 @@ class GameObject(pygame.sprite.Sprite):
         """Get the position of the object"""
         return tuple(self._position)
 
-    def update(self, dt, surf):
+    def update(self, dt):
         if self._airborne:
             if self._airtime == 0:
                 self._airtime = dt
             self.__gravity__(dt)
         self.__move__() 
-        surf.blit(self.image, self.rect) 
 
 class AnimGameObject(GameObject, SSprite):
     """
@@ -129,5 +128,5 @@ class AnimGameObject(GameObject, SSprite):
                 self._airtime = dt
             self.__gravity__(dt)
         self.__move__()
-        SSprite.update(self, dt, surf)
+        SSprite.update(self, dt)
 

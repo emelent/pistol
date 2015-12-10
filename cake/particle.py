@@ -173,7 +173,7 @@ class Particle(pygame.sprite.Sprite):
                 self.__reproduce__()
         super(Particle, self).kill()
 
-    def update(self, t, surf):
+    def update(self, t):
         """
             Update particle
 
@@ -195,7 +195,6 @@ class Particle(pygame.sprite.Sprite):
             max_alpha = 255
             alpha = max_alpha - (max_alpha * life)
             self.image.set_alpha(alpha)
-        surf.blit(self.image, self.rect)
 
 
 class ParticleSpawner(pygame.sprite.Sprite):
@@ -509,8 +508,8 @@ class CyclicParticle(Particle):
     def set_motion_radius(self, r):
         self._velocity = Vec2d(r, 0)
 
-    def update(self, t, surf):
-        super(CyclicParticle, self).update(t, surf)
+    def update(self, t):
+        super(CyclicParticle, self).update(t)
         self._velocity.angle += 10 * self._clockwise
 
 class Explosion(Splatter):
