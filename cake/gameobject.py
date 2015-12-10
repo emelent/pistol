@@ -122,7 +122,7 @@ class AnimGameObject(GameObject, SSprite):
         self._airtime = 0
         self._airborne = False
 
-    def update(self, dt, surf):
+    def update(self, dt):
         if self._airborne:
             if self._airtime == 0:
                 self._airtime = dt
