@@ -100,7 +100,7 @@ class GameObject(pygame.sprite.Sprite):
 
     def get_position(self):
         """Get the position of the object"""
-        return tuple(self._position)
+        return list(self._position)
 
     def update(self, dt):
         if self._airborne:
