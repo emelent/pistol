@@ -9,8 +9,8 @@ from cake.input import EventHandler
 def prepare():
     pygame.init()
     data = {}
-    data['SIZE'] = 480, 360
-    data['screen'] = pygame.display.set_mode(data['SIZE'])
+    data['SCREEN_SIZE'] = 480, 360
+    data['screen'] = pygame.display.set_mode(data['SCREEN_SIZE'])
     data['in_game'] = False
     data['in_start_menu'] = True
     data['in_pause_menu'] = False
