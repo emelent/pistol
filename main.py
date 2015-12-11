@@ -36,12 +36,13 @@ def start_menu(data):
         data['in_start_menu'] = False    
         data['in_game'] = False    
         data['in_pause_menu'] = False
+        print("Quitting...")
 
     btnGroup.add_button('start', start_game)
     btnGroup.add_button('quit', quit)
     btnGroup.center(screen.get_size())
     events.assign_mouseup(1, btnGroup.event_callback)
-
+    events.assign_keyup(pygame.K_q, quit)
     while data['in_start_menu']:
         clock.tick(50)
         screen.fill((80,80,80))
@@ -50,6 +51,7 @@ def start_menu(data):
         mouse_pos = pygame.mouse.get_pos()
         btnGroup.update(mouse_pos, screen)
         pygame.display.flip()
+    print("leaving main menu..")
 
 
 def pause_menu(data):		
@@ -87,6 +89,8 @@ def pause_menu(data):
     btnGroup.add_button('quit to desktop', quit)
     btnGroup.center(screen.get_size())
     events.assign_mouseup(1, btnGroup.event_callback)
+    events.assign_keyup(pygame.K_ESCAPE, resume_game)
+    events.assign_keyup(pygame.K_q, quit)
 
     while data['in_pause_menu']:
         clock.tick(50)
@@ -96,6 +100,7 @@ def pause_menu(data):
         mouse_pos = pygame.mouse.get_pos()
         btnGroup.update(mouse_pos, screen)
         pygame.display.flip()
+    print("leaving pause menu..")
 
 def main():
     data = prepare()
