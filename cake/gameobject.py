@@ -14,16 +14,16 @@ class GameObject(pygame.sprite.Sprite):
 
         @self.rect          = pygame.rect of image, used for positioning
 
-        @self._velocity     = Vec2d object representing velocity of GameObject
+        @self.velocity     = Vec2d object representing velocity of GameObject
 
-        @self._position     = Vec2d object representing position of GameObject
+        @self.position     = Vec2d object representing position of GameObject
 
-        @self._gravity      = Vec2d object representing gravity affecting the GameObject
+        @self.gravity      = Vec2d object representing gravity affecting the GameObject
 
-        @self._airborne     = boolean value that determines whether or not self.__gravity__()
+        @self.airborne     = boolean value that determines whether or not self.__gravity__()
                               function should run
 
-        @self._airtime      = float contains the duration of time the GameObject has been
+        @self.airtime      = float contains the duration of time the GameObject has been
                               airborne for. Used when calculating gravity
         
       
@@ -34,16 +34,17 @@ class GameObject(pygame.sprite.Sprite):
         # if image != None:
         self.image = image
         self.rect = image.get_rect()
-        self._velocity = Vec2d(0, 0)
-        self._position = Vec2d(0, 0)
-        self._airborne = False
-        self._airtime = 0
-        self._gravity = Vec2d(0, 0.8)
+        self.velocity = Vec2d(0, 0)
+        self.position = Vec2d(0, 0)
+        self.airborne = False
+        self.airtime = 0
+        self.gravity = Vec2d(0, 0)
+        self.world = None
 
     def __gravity__(self, dt):
         """Apply gravity to object"""
-        t = dt - self._airtime
-        self._velocity += self._gravity * t
+        t = dt - self.airtime
+        self.velocity += self.gravity * t
 
     def collide(self, other, extra=None):
         """
@@ -70,42 +71,48 @@ class GameObject(pygame.sprite.Sprite):
 
     def __move__(self): 
         """Called by update method to change object's position using object's velocity"""
-        v = self._velocity
-        p = self._position
+        v = self.velocity
+        p = self.position
         p += v
         self.rect.x = round(p.x)
         self.rect.y = round(p.y)
 
     def set_gravity(self, x, y):
         """Set GameObject gravity"""
-        self._gravity.x = x
-        self._gravity.y = y
+        self.gravity.x = x
+        self.gravity.y = y
 
     def toggle_airborne(self, b=None):
         """toggle self._airborne, if true, gravity will be active"""
-        self._airborne = b if b != None else not self._airborne
-        if not self._airborne:
-            self._airtime = 0
+        self.airborne = b if b != None else not self.airborne
+        if not self.airborne:
+            self.airtime = 0
 
     def set_velocity(self, x, y):
         """Set object's velocity"""
-        self._velocity.x = x
-        self._velocity.y = y
+        self.velocity.x = x
+        self.velocity.y = y
+
+    def set_velocityx(self, x):
+        self.velocity.x = x
+
+    def set_velocityy(self, y):
+        self.velocity.y = y
 
     def set_position(self, x, y):
         """Set the position of the object"""
-        self._position.x = x
-        self._position.y = y
+        self.position.x = x
+        self.position.y = y
         self.rect.topleft = x, y
 
     def get_position(self):
         """Get the position of the object"""
-        return list(self._position)
+        return list(self.position)
 
     def update(self, dt):
-        if self._airborne:
-            if self._airtime == 0:
-                self._airtime = dt
+        if self.airborne:
+            if self.airtime == 0:
+                self.airtime = dt
             self.__gravity__(dt)
         self.__move__() 
 
@@ -117,15 +124,17 @@ class AnimGameObject(GameObject, SSprite):
     """
     def __init__(self, default_frames, **kwargs):
         SSprite.__init__(self, default_frames, **kwargs)
-        self._velocity = Vec2d(0, 0)
-        self._position = Vec2d(0, 0)
-        self._airtime = 0
-        self._airborne = False
+        self.velocity = Vec2d(0, 0)
+        self.position = Vec2d(0, 0)
+        self.airtime = 0
+        self.airborne = False
+        self.gravity = Vec2d(0, 0)
+        self.world = None
 
     def update(self, dt):
-        if self._airborne:
-            if self._airtime == 0:
-                self._airtime = dt
+        if self.airborne:
+            if self.airtime == 0:
+                self.airtime = dt
             self.__gravity__(dt)
         self.__move__()
         SSprite.update(self, dt)
