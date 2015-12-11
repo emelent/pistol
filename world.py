@@ -17,10 +17,11 @@ class World:
     def __init__(self, width, height, screen_size, bg=None, bg_color=None):
         super(World, self).__init__()
         self.screen_size = screen_size
-        self.background = bg if bg != None else pygame.Surface((width+SHAKE_PADDING, height + SHAKE_PADDING))
+        self.background = bg if bg != None else pygame.Surface((width, height))
         self.background_color = bg_color
         if bg_color:
             self.background.fill(bg_color)
+        self.world_surf = pygame.Surface((width+SHAKE_PADDING, height + SHAKE_PADDING))
         self.width = width
         self.height = height
         self.x = 0
@@ -203,22 +204,28 @@ class World:
         self.__handle_collisions__()
         if self.shake:
             self.__shake__()
+        wsurf = self.world_surf
+        wsurf.fill((0,0,0))
         bg = self.background
-        if self.background_color:
-            bg.fill(self.background_color)
+        if self.focus:
+            x = self.screen_size[0]//2 - self.focus.x - self.focus.width//2
+            y = 0
+            wsurf.blit(bg, [x,y])
+        else:
+            wsurf.blit(bg, [0,0])
         # if bg:
         for spr in self.all_objects:
             spr.update(dt)
 
         for spr in self.noncollideables:
-            self.__blit_spr__(spr, bg)
+            self.__blit_spr__(spr, wsurf)
         for spr in self.collideables:
-            self.__blit_spr__(spr, bg)
+            self.__blit_spr__(spr, wsurf)
         for spr in self.enemies:
-            self.__blit_spr__(spr, bg)
+            self.__blit_spr__(spr, wsurf)
         for spr in self.players:
-            self.__blit_spr__(spr, bg)
+            self.__blit_spr__(spr, wsurf)
         for spr in self.items:
-            self.__blit_spr__(spr, bg)
-        surf.blit(bg, [self.x, self.y])
+            self.__blit_spr__(spr, wsurf)
+        surf.blit(wsurf, [self.x, self.y])
 
