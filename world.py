@@ -5,13 +5,17 @@ class World:
 
     """
         This class represents a level in a game
-        and handles camera focus as well as collision
-        between GameObjects
+        and handles camera focus, permitted collision
+        between GameObjects and also the blitting
+        of GameObjects to screen
     """
-    def __init__(self, width, height, screen_size, bg=None):
+    def __init__(self, width, height, screen_size, bg=None, bg_color=None):
         super(World, self).__init__()
         self.screen_size = screen_size
-        self.background = bg
+        self.background = bg if bg != None else pygame.Surface((width, height))
+        self.background_color = bg_color
+        if bg_color:
+            self.background.fill(bg_color)
         self.width = width
         self.height = height
         self.collideables = set()
@@ -23,6 +27,8 @@ class World:
         self.focus = None
         self.hz_focus = False
         self.vt_focus = False
+        self.focus_offsetx = 0
+        self.focus_offsety = 0
         
     def __add_to_all__(self, obj):
         """
@@ -32,7 +38,7 @@ class World:
             This should not be called directly, called indirectly
             by other add_* methods. 
         """
-        assert isinstance(GameObject, obj)
+        assert isinstance(obj, GameObject)
         self.all_objects.add(obj)
 
     def add_collideable(self, obj):
@@ -74,20 +80,39 @@ class World:
         self.__add_to_all__(obj)
         self.enemies.add(obj)
         
-    def set_focus(self, rect, horz=True, vert=False):
+    def collides_with_collideable(self, rect):
+        spr = pygame.sprite.Sprite()
+        spr.rect = rect
+        sprs = pygame.sprite.spritecollide(spr, self.collideables, False)
+        
+        return len(sprs) > 0 
+
+    def collides_with_wall(self, rect):
+        return rect.left < 0 or rect.right > self.width
+
+    def is_move_valid(self, rect):
+        return not(self.collides_with_wall(rect) or self.collides_with_collideable(rect))
+
+    def set_focus(self, obj, horz=True, vert=False, offsetx=0, offsety=0):
         """
-            Set camera focus to obj.
-            Object must be previously added to World
-            using on of the add_* methods.
+            Set camera focus to on object or rect.
+            If object is given, object must have rect property.
 
             @horz       = boolean, focus horizontally (appears centered x)
             @vert       = boolean, focus vertically (appears centered y)
         """
         if horz or vert:
-            self.focus = rect
+            if isinstance(obj, pygame.Rect):
+                self.focus = obj
+            else:
+                self.focus = obj.rect
             self.hz_focus = horz
             self.vt_focus = vert
+            self.focus_offsetx = offsetx
+            self.focus_offsety = offsety
 
+    def remove_focus(self):
+        self.focus = None
 
     def __handle_collisions__(self):
         """
@@ -111,18 +136,18 @@ class World:
         """
 
         # player collisions
-        for p in players:
-            spr = pygame.sprite.spritecollide(p, self.items)
+        for p in self.players:
+            sprs = pygame.sprite.spritecollide(p, self.items, False)
             for s in sprs:
                 p.collide(s)
 
-            enemies = pygame.sprite.spritecollide(p, self.enemies)
+            enemies = pygame.sprite.spritecollide(p, self.enemies, False)
             for e in enemies:
                 p.collide(e)
 
         # enemy collisions
-        for e in enemies:
-            sprs = pygame.sprite.spritecollide(p, self.items)
+        for e in self.enemies:
+            sprs = pygame.sprite.spritecollide(p, self.items, False)
             for s in sprs:
                 p.collide(s)
 
@@ -134,15 +159,15 @@ class World:
         """
         frect = self.focus
         pos = spr.get_position()
-        if focus: 
+        if frect: 
             if self.hz_focus:
                 fx = self.screen_size[0]//2 - frect.width //2
-                dx = pos[0] - frect.x 
-                pos[0] = fx - dx
+                dx = frect.x - pos[0]
+                pos[0] = fx - dx + self.focus_offsetx
             if self.vt_focus:
                 fy = self.screen_size[1]//2 - frect.height//2
-                dy = pos[1] - frect.y 
-                pos[1] = fy - dy
+                dy = frect.y - pos[1]
+                pos[1] = fy - dy + self.focus_offsety
         surf.blit(spr.image, pos)
 
     def update(self, dt, surf): 
@@ -151,26 +176,25 @@ class World:
             bg, noncollideables, collideables, enemies, player, items
             and according to the correct focus
         """
-        self.handle_collisions()
+        self.__handle_collisions__()
         bg = self.background
-        # background is not one that moves, just an image to
-        # set theme, motion will be shown by non-collideables
-        # shifting according the motion of the focus(normally player)
-        if bg:
-           surf.blit(bg, [0,0])
+        if self.background_color:
+            bg.fill(self.background_color)
+        # if bg:
         for spr in self.all_objects:
             spr.update(dt)
 
         for spr in self.noncollideables:
-            self.__blit_spr__(spr, surf)
+            self.__blit_spr__(spr, bg)
         for spr in self.collideables:
-            self.__blit_spr__(spr, surf)
+            self.__blit_spr__(spr, bg)
         for spr in self.enemies:
-            self.__blit_spr__(spr, surf)
+            self.__blit_spr__(spr, bg)
         for spr in self.players:
-            self.__blit_spr__(spr, surf)
+            self.__blit_spr__(spr, bg)
         for spr in self.items:
-            self.__blit_spr__(spr, surf)
+            self.__blit_spr__(spr, bg)
 
+        surf.blit(bg, [0,0])
 
 
