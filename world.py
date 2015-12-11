@@ -1,5 +1,10 @@
 import pygame
+import random
+
 from cake.gameobject import GameObject
+
+# used for shaking the world
+SHAKE_PADDING = 5
 
 class World:
 
@@ -12,12 +17,14 @@ class World:
     def __init__(self, width, height, screen_size, bg=None, bg_color=None):
         super(World, self).__init__()
         self.screen_size = screen_size
-        self.background = bg if bg != None else pygame.Surface((width, height))
+        self.background = bg if bg != None else pygame.Surface((width+SHAKE_PADDING, height + SHAKE_PADDING))
         self.background_color = bg_color
         if bg_color:
             self.background.fill(bg_color)
         self.width = width
         self.height = height
+        self.x = 0
+        self.y = 0
         self.collideables = set()
         self.noncollideables = set()
         self.items = set()
@@ -29,6 +36,7 @@ class World:
         self.vt_focus = False
         self.focus_offsetx = 0
         self.focus_offsety = 0
+        self.shake = False
         
     def __add_to_all__(self, obj):
         """
@@ -104,7 +112,7 @@ class World:
         if horz or vert:
             if isinstance(obj, pygame.Rect):
                 self.focus = obj
-            else:
+            elif isinstance(obj, GameObject):
                 self.focus = obj.rect
             self.hz_focus = horz
             self.vt_focus = vert
@@ -113,6 +121,12 @@ class World:
 
     def remove_focus(self):
         self.focus = None
+
+    def toggle_shake(self, b=None):
+        """
+            Toggle screen shaking
+        """
+        self.shake = b if b != None else not self.shake
 
     def __handle_collisions__(self):
         """
@@ -155,7 +169,9 @@ class World:
         """
             Blit a sprite to the screen surface
             with consideration to the world's
-            focus object
+            focus. If there is a focus, everything
+            will be blitted in relation to the focus
+            rect
         """
         frect = self.focus
         pos = spr.get_position()
@@ -168,7 +184,15 @@ class World:
                 fy = self.screen_size[1]//2 - frect.height//2
                 dy = frect.y - pos[1]
                 pos[1] = fy - dy + self.focus_offsety
+        else:
+            pos[0] += self.focus_offsetx
+            pos[1] += self.focus_offsety
         surf.blit(spr.image, pos)
+
+    def __shake__(self):
+        n = SHAKE_PADDING//2
+        self.x = random.randint(-n, n)
+        self.y = random.randint(-n, n)
 
     def update(self, dt, surf): 
         """
@@ -177,6 +201,8 @@ class World:
             and according to the correct focus
         """
         self.__handle_collisions__()
+        if self.shake:
+            self.__shake__()
         bg = self.background
         if self.background_color:
             bg.fill(self.background_color)
@@ -194,7 +220,5 @@ class World:
             self.__blit_spr__(spr, bg)
         for spr in self.items:
             self.__blit_spr__(spr, bg)
-
-        surf.blit(bg, [0,0])
-
+        surf.blit(bg, [self.x, self.y])
 
