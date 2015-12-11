@@ -20,10 +20,16 @@ class Game:
         events.assign_keyup(pygame.K_p, self.pause)
         events.assign_keyup(pygame.K_q, self.quit)
         events.assign_keyup(pygame.K_f, self.toggle_focus)
+        events.assign_keyup(pygame.K_s, self.toggle_shake)
         self.events = events
         self.fps = fps
         self.focused = False
         
+    def toggle_shake(self):
+        w = self.data['game']['world']
+        w.toggle_shake()
+        print("Shake: %s" % w.shake)
+
     def toggle_focus(self):
         w = self.data['game']['world']
         p = self.data['game']['player']
