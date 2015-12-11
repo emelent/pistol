@@ -196,6 +196,10 @@ class Particle(pygame.sprite.Sprite):
             alpha = max_alpha - (max_alpha * life)
             self.image.set_alpha(alpha)
 
+    def update(self, t, surf):
+        self.update(t)
+        surf.blit(self.image, self.rect)
+
 
 class ParticleSpawner(pygame.sprite.Sprite):
     """
