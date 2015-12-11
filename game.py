@@ -20,17 +20,10 @@ class Game:
         events.assign_keyup(pygame.K_p, self.pause)
         events.assign_keyup(pygame.K_q, self.quit)
         events.assign_keyup(pygame.K_f, self.toggle_focus)
-        events.assign_keyup(pygame.K_t, self.toggle_autofocus)
         self.events = events
         self.fps = fps
         self.focused = False
         
-            
-    def toggle_autofocus(self):
-        p = self.data['game']['player']
-        p.auto_focus = not p.auto_focus
-        print("Autofocus: %s" % p.auto_focus)
-
     def toggle_focus(self):
         w = self.data['game']['world']
         p = self.data['game']['player']
