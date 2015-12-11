@@ -39,13 +39,9 @@ class Player(GameObject):
         if keystate[pygame.K_LEFT]:
             if self.is_move_valid(x=-self.speed):
                 self.position.x -= self.speed
-            else:
-                print("left invalid")
         if keystate[pygame.K_RIGHT]:
             if self.is_move_valid(x=self.speed):
                 self.position.x += self.speed
-            else:
-                print("right invalid")
         if keystate[pygame.K_UP]:
             self.jump()
          
