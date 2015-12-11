@@ -9,7 +9,6 @@ from player import Player
 from enemy import Enemy
 
 
-
 class Game:
     """
         Generic class that handles game setup,
@@ -36,7 +35,7 @@ class Game:
         if self.focused:
             w.remove_focus()
         else:
-            w.set_focus(p, vert=True, offsety=0)
+            w.set_focus(p)
         self.focused = not self.focused
             
 
