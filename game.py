@@ -49,7 +49,7 @@ class Game:
         e2 = Enemy(300, 300, w)
         w.add_player(p) 
         w.add_enemy(e)
-        w.add_enemy(e2)
+        w.add_collideable(e2)
         # w.set_focus(p)
         game= {}
         game['particles'] = pygame.sprite.Group()
