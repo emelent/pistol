@@ -128,7 +128,7 @@ class World:
                     obj, self.collideables, False, collided)) < 1
 
 
-    def set_focus(self, obj, horz=True, vert=False, offsetx=0, offsety=0, copy=False):
+    def set_focus(self, obj, horz=True, vert=False, offsetx=0, offsety=0):
         """
             Set camera focus to on object or rect.
             If object is given, object must have rect property.
@@ -138,9 +138,9 @@ class World:
         """
         if horz or vert:
             if isinstance(obj, pygame.Rect):
-                self.focus = obj if not copy else obj.copy()
+                self.focus = obj
             elif isinstance(obj, GameObject):
-                self.focus = obj.rect if not copy else obj.rect.copy()
+                self.focus = obj.rect
             self.hz_focus = horz
             self.vt_focus = vert
             self.focus_offsetx = offsetx
