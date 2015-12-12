@@ -31,7 +31,8 @@ class Player(GameObject):
         rect.x += round(x) 
         rect.y += round(y) 
         
-        return self.world.is_move_valid(rect)
+        # return self.world.is_move_valid(rect)
+        return True
 
     def update(self, dt):
         
