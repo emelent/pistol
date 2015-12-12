@@ -31,8 +31,38 @@ class Player(GameObject):
         rect.x += round(x) 
         rect.y += round(y) 
         
-        # return self.world.is_move_valid(rect)
-        return True
+        return self.world.is_move_valid(self, x, y)
+
+    def __gravity__(self, dt):
+        """
+            Override method to deactivate gravity if
+            object touches ground
+        """
+        y = self.velocity.y
+
+        # turn off gravity if player is on top of object
+        if y < 0:
+            if not self.world.is_move_valid(self, y=int(y), wall_check=False):
+                self.toggle_airborne(False) 
+                return
+        super(Player, self).__gravity__(dt)
+
+    def __move__(self):
+        """
+            Override method to add check on collision check velocity.y,
+            to b
+        
+        """
+            
+        # idea here is if player hits ceiling while jumping, half 
+        # y component of the velocity and reverse it
+        y = self.velocity.y
+        if y < 0:
+            if not self.world.is_move_valid(self, y=int(y), wall_check=False):
+                self.velocity.y = y/-2
+        
+        super(Player, self).__move__()
+        self.velocity.y = y
 
     def update(self, dt):
         
