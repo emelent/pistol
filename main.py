@@ -1,7 +1,7 @@
 
 import pygame 
 
-import ui
+from menus import *
 from game import Game 
 from cake.input import EventHandler
 
@@ -17,90 +17,6 @@ def prepare():
     data['game'] = None
     return data
 
-
-def start_menu(data):		
-    screen = data['screen']
-    clock = pygame.time.Clock()
-    events = EventHandler()
-    btnGroup = ui.ButtonGroup((200, 200), btn_gap=10,btn_height=40, bg_color=(0,0,0))
-    btnGroup.set_button_property('background_color', (0, 0, 0))
-    btnGroup.set_button_property('border_color', (145, 0, 0) )
-    btnGroup.set_button_property('highlight_color', (145,0,0))
-
-    def start_game():
-        data['in_start_menu'] = False    
-        data['in_game'] = True
-        data['in_pause_menu'] = False
-
-    def quit():
-        data['in_start_menu'] = False    
-        data['in_game'] = False    
-        data['in_pause_menu'] = False
-        print("Quitting...")
-
-    btnGroup.add_button('start', start_game)
-    btnGroup.add_button('quit', quit)
-    btnGroup.center(screen.get_size())
-    events.assign_mouseup(1, btnGroup.event_callback)
-    events.assign_keyup(pygame.K_q, quit)
-    while data['in_start_menu']:
-        clock.tick(50)
-        screen.fill((80,80,80))
-        events.handle_events()
-
-        mouse_pos = pygame.mouse.get_pos()
-        btnGroup.update(mouse_pos, screen)
-        pygame.display.flip()
-    print("leaving main menu..")
-
-
-def pause_menu(data):		
-    screen = data['screen']
-    clock = pygame.time.Clock()
-    events = EventHandler()
-    btnGroup = ui.ButtonGroup((200, 200), btn_gap=10,btn_height=40, bg_color=(0,0,0))
-    btnGroup.set_button_property('background_color', (0, 0, 0))
-    btnGroup.set_button_property('border_color', (145, 0, 0) )
-    btnGroup.set_button_property('highlight_color', (145,0,0))
-
-    def resume_game():
-        data['in_start_menu'] = False    
-        data['in_game'] = True
-        data['in_pause_menu'] = False
-
-    def new_game():
-        data['game'] = None
-        resume_game()
-
-    def quit():
-        data['in_start_menu'] = False    
-        data['in_game'] = False    
-        data['in_pause_menu'] = False
-
-    def go_to_main():
-        data['game'] = None
-        data['in_start_menu'] = True
-        data['in_game'] = False    
-        data['in_pause_menu'] = False
-
-    btnGroup.add_button('resume', resume_game)
-    btnGroup.add_button('new game', new_game)
-    btnGroup.add_button('quit to menu', go_to_main)
-    btnGroup.add_button('quit to desktop', quit)
-    btnGroup.center(screen.get_size())
-    events.assign_mouseup(1, btnGroup.event_callback)
-    events.assign_keyup(pygame.K_ESCAPE, resume_game)
-    events.assign_keyup(pygame.K_q, quit)
-
-    while data['in_pause_menu']:
-        clock.tick(50)
-        screen.fill((80,80,80))
-        events.handle_events()
-
-        mouse_pos = pygame.mouse.get_pos()
-        btnGroup.update(mouse_pos, screen)
-        pygame.display.flip()
-    print("leaving pause menu..")
 
 def main():
     data = prepare()
