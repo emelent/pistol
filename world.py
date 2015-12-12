@@ -2,6 +2,7 @@ import pygame
 import random
 
 from cake.gameobject import GameObject
+from collision import *
 
 # used for shaking the world
 SHAKE_PADDING = 5
@@ -89,18 +90,43 @@ class World:
         self.__add_to_all__(obj)
         self.enemies.add(obj)
         
-    def collides_with_collideable(self, rect):
-        spr = pygame.sprite.Sprite()
-        spr.rect = rect
-        sprs = pygame.sprite.spritecollide(spr, self.collideables, False)
+    def is_move_valid(self, obj, x=0, y=0, wall_check=True): 
+        """
+            Check if move is valid, doesn't collide with
+            wall or object it's not supposed to
+
+           @param wall_check    = boolean, check if object collides with wall
+                                  this might be removed in favor of creating
+                                  walls to create an invisible and adding them 
+                                  as collideables
+
+        """
         
-        return len(sprs) > 0 
+        # left
+        collided = None
+        if x < 0:
+            collided = collide_left
+            if wall_check:
+                if obj.rect.left <= 0: 
+                    return False
+        # right
+        if x > 0:
+            collided = collide_right
+            if wall_check:
+                if obj.rect.right >= self.width:
+                    return False
+        # bottom 
+        if y > 0:
+            collided = collide_bottom
 
-    def collides_with_wall(self, rect):
-        return rect.left < 0 or rect.right > self.width
+        # top 
+        if y < 0:
+            collided = collide_top
 
-    def is_move_valid(self, rect):
-        return not(self.collides_with_wall(rect) or self.collides_with_collideable(rect))
+        return len(
+                pygame.sprite.spritecollide(
+                    obj, self.collideables, False, collided)) < 1
+
 
     def set_focus(self, obj, horz=True, vert=False, offsetx=0, offsety=0):
         """
