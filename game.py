@@ -33,10 +33,11 @@ class Game:
         w = self.data['game']['world']
         p = self.data['game']['player']
         if self.focused:
-            w.remove_focus()
+            w.set_focus(p.rect.copy(), animate=False)
         else:
-            w.set_focus(p)
+            w.set_focus(p.rect)
         self.focused = not self.focused
+        print("Focused: %s" % self.focused)
             
 
     def initialize(self, data):
