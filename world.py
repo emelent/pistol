@@ -3,6 +3,7 @@ import random
 
 from cake.gameobject import GameObject
 from collision import *
+from animation import Animation
 
 # used for shaking the world
 SHAKE_PADDING = 5
@@ -16,7 +17,6 @@ class World:
         of GameObjects to screen
     """
     def __init__(self, width, height, screen_size, bg=None, bg_color=None):
-        super(World, self).__init__()
         self.screen_size = screen_size
         self.background = bg if bg != None else pygame.Surface((width, height))
         self.background_color = bg_color
@@ -38,8 +38,11 @@ class World:
         self.vt_focus = False
         self.focus_offsetx = 0
         self.focus_offsety = 0
+        self.target_focus = None
         self.shake = False
-        
+        self.ani = None
+        self.set_focus(pygame.Rect(0,0,0,0), animate=False)
+
     def __add_to_all__(self, obj):
         """
             Performs necessary checks and then adds obj to 
@@ -127,8 +130,19 @@ class World:
                 pygame.sprite.spritecollide(
                     obj, self.collideables, False, collided)) < 1
 
+    def set_animation(self, tgt_x, tgt_y, delay=0):
+        self.ani = Animation(x=tgt_x, y=tgt_y, transition='out_expo',
+            duration=800, delay=delay)
 
-    def set_focus(self, obj, horz=True, vert=False, offsetx=0, offsety=0):
+
+    def start_animation(self):
+        if self.ani != None:
+            # self.ani.delay = random() * 5
+            self.ani._elapsed = .0
+            self.ani.start(self.focus)
+
+
+    def set_focus(self, rect, horz=True, vert=False, offsetx=0, offsety=0, animate=True):
         """
             Set camera focus to on object or rect.
             If object is given, object must have rect property.
@@ -137,17 +151,23 @@ class World:
             @vert       = boolean, focus vertically (appears centered y)
         """
         if horz or vert:
-            if isinstance(obj, pygame.Rect):
-                self.focus = obj
-            elif isinstance(obj, GameObject):
-                self.focus = obj.rect
+            assert isinstance(rect, pygame.Rect)
+            if self.ani:
+                self.ani.kill()
+            if animate:
+                self.set_animation(rect.x, rect.y)
+                self.target_focus = rect
+                self.start_animation()
+            else:
+                self.focus = rect
             self.hz_focus = horz
             self.vt_focus = vert
             self.focus_offsetx = offsetx
             self.focus_offsety = offsety
 
     def remove_focus(self):
-        self.focus = None
+        self.focus = pygame.Rect(0,0,0,0)
+        self.ani = None
 
     def toggle_shake(self, b=None):
         """
@@ -227,6 +247,13 @@ class World:
             bg, noncollideables, collideables, enemies, player, items
             and according to the correct focus
         """
+        if self.ani:
+            if self.ani.targets:
+                self.ani.update(dt)
+            else:
+                self.ani = None
+                self.focus = self.target_focus
+                print("Focus: %s" % self.focus)
         self.__handle_collisions__()
         if self.shake:
             self.__shake__()
